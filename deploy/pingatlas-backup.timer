@@ -1,0 +1,10 @@
+[Unit]
+Description=pingatlas 每日备份定时器（每天 03:20，含随机延迟避免与其它任务撞车）
+
+[Timer]
+OnCalendar=*-*-* 03:20:00
+RandomizedDelaySec=600
+Persistent=true
+
+[Install]
+WantedBy=timers.target

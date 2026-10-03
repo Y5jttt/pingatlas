@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 编译（center / node 两个 build tag）
+        run: |
+          go build -tags center -trimpath -o /tmp/pingatlas-center .
+          go build -tags node   -trimpath -o /tmp/pingatlas-node   .
+
+      - name: go vet
+        run: |
+          go vet -tags center ./...
+          go vet -tags node   ./...
+
+      - name: 单元测试
+        run: |
+          go test -tags center -count=1 ./...
+          go test -tags node   -count=1 ./...

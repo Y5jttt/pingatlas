@@ -1,0 +1,39 @@
+# 构建产物（不要提交到仓库：单个 13~17MB，GitHub 会告警）
+pingatlas_center_linux
+pingatlas_linux
+pingatlas_node_linux
+pingatlas_node_arm64
+pingatlas-center
+pingatlas-node
+*.exe
+dist/
+build/
+
+# 真实配置：含节点 token / 管理密码 / 数据库口令，绝不能进仓库
+center.json
+config.json
+*.local.json
+.env
+
+# 运行期数据
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.log
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 开发过程中的备份文件（*.bak 匹配不到 app.js.bak-hover 这类命名）
+*.bak
+*.bak-*
+*.orig
+*.rej
+# 私钥（节点身份，绝不能进仓库）
+*.key
+node.key
+center.key

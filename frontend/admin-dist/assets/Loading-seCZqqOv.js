@@ -1,0 +1,1 @@
+import{c as e,d as t,et as n,h as r,t as i,x as a}from"./_plugin-vue_export-helper-T8LTEaUL.js";var o={class:`loading`},s={class:`text`},c=i(r({__name:`Loading`,props:{text:{}},setup(r){return(i,c)=>(a(),t(`div`,o,[c[0]||=e(`span`,{class:`spinner`},null,-1),e(`span`,s,n(r.text||`加载中...`),1)]))}}),[[`__scopeId`,`data-v-f363e6fa`]]);export{c as t};

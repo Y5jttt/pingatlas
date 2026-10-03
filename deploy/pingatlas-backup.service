@@ -1,0 +1,16 @@
+[Unit]
+Description=pingatlas 每日备份（PostgreSQL + center.json + 节点私钥）
+Documentation=file:///opt/pingatlas/deploy/README.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/opt/pingatlas
+ExecStart=/opt/pingatlas/deploy/backup.sh
+# 备份里含数据库口令与节点私钥，权限收紧
+UMask=0077
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=1800

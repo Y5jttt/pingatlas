@@ -1,0 +1,383 @@
+/* ============================================================
+   custom.css — pingatlas 管理面板美化覆盖层
+   加载顺序在原版 index-BEm0uYK8.css 之后，同特异性规则后者胜。
+
+   重要背景：原版 admin-dist 构建产物丢失了 style.css 的整个
+   :root 变量块与全局基础样式（reset/body/表单/滚动条），导致
+   --sidebar-width 等全部失效（侧边栏 145px 内容自适应、卡片
+   无圆角变量）。本文件承担两职：
+   1) 补全完整 :root 变量表（配色换科技蓝）
+   2) 补全局基础样式 + 覆盖个别硬编码色值 + 注入元素样式
+   ============================================================ */
+
+/* ---------- 1. 完整 Design Tokens（科技蓝主题） ---------- */
+:root {
+  /* Primary palette: tailwind blue */
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+  --primary-900: #1e3a8a;
+
+  /* Slate neutrals（中性色保持原版） */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  /* Semantic colors */
+  --success-50: #ecfdf5;
+  --success-100: #d1fae5;
+  --success-500: #10b981;
+  --success-600: #059669;
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+  --danger-50: #fff1f2;
+  --danger-100: #ffe4e6;
+  --danger-500: #f43f5e;
+  --danger-600: #e11d48;
+  --info-50: #eff6ff;
+  --info-500: #3b82f6;
+  --info-600: #2563eb;
+
+  /* Layout tokens（锁死侧边栏与顶栏） */
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 64px;
+  --topbar-height: 56px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-sm: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(16, 24, 40, 0.07), 0 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-lg: 0 18px 40px -16px rgba(15, 42, 90, 0.18), 0 6px 16px -8px rgba(37, 99, 235, 0.10);
+  --ring: 0 0 0 3px rgba(37, 99, 235, 0.15);
+
+  /* Brand & surface */
+  --brand-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --bg-app: linear-gradient(165deg, #f6f9fe 0%, #eef4fb 55%, #f2f6fd 100%);
+  --card-bg: #ffffff;
+  --card-border: #e6ecf5;
+  --hover-bg: #f5f8fd;
+  --table-head: #f5f8fc;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--slate-700);
+  background: #f2f6fd;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- 2. 全局基础样式（原产物缺失） ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html,
+body,
+#app {
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  color: var(--slate-700);
+  background: #f2f6fd;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--slate-900);
+  line-height: 1.3;
+}
+a {
+  color: var(--primary-600);
+  text-decoration: none;
+}
+
+/* 表单控件 */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="email"],
+select,
+textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-md);
+  background: #fff;
+  color: var(--slate-800);
+  font-size: 14px;
+  line-height: 1.4;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background: var(--slate-100);
+  color: var(--slate-500);
+  cursor: not-allowed;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary-500);
+  box-shadow: var(--ring);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--slate-400);
+}
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--slate-300);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--slate-400);
+}
+
+/* ---------- 3. 侧边栏：紫渐变 → 深蓝渐变 ---------- */
+.sidebar[data-v-efd8fa61] {
+  background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 68%, #16307a 100%);
+  box-shadow: 6px 0 24px -14px rgba(23, 52, 122, 0.45);
+}
+.nav-item.active[data-v-efd8fa61] {
+  box-shadow: 0 4px 14px -4px rgba(23, 52, 122, 0.38);
+}
+
+/* ---------- 4. 登录页：浅色蓝白 + 光斑 ---------- */
+.login-screen[data-v-efd8fa61] {
+  background:
+    radial-gradient(900px 460px at 12% 18%, rgba(59, 130, 246, 0.16), transparent 62%),
+    radial-gradient(820px 420px at 88% 82%, rgba(37, 99, 235, 0.13), transparent 62%),
+    radial-gradient(520px 300px at 78% 10%, rgba(96, 165, 250, 0.10), transparent 60%),
+    linear-gradient(165deg, #f7fafe 0%, #edf3fc 100%);
+}
+.login-card[data-v-efd8fa61] {
+  border-radius: 20px;
+  border: 1px solid #e7edf7;
+  box-shadow: 0 24px 60px -20px rgba(15, 42, 90, 0.22), 0 6px 18px -8px rgba(37, 99, 235, 0.10);
+}
+.login-brand[data-v-efd8fa61] {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  padding: 40px 24px 32px;
+  position: relative;
+}
+.login-brand[data-v-efd8fa61]::after {
+  content: "";
+  position: absolute;
+  right: -36px;
+  top: -36px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.10);
+  pointer-events: none;
+}
+.login-logo[data-v-efd8fa61] {
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 20px -8px rgba(13, 40, 98, 0.55);
+}
+.login-btn[data-v-efd8fa61] {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow: 0 8px 18px -8px rgba(37, 99, 235, 0.65);
+  border-radius: 10px;
+  padding: 12px;
+}
+.login-btn[data-v-efd8fa61]:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2f7ef4, #1d4ed8);
+}
+
+/* ---------- 5. 卡片：统一柔和蓝调阴影 ---------- */
+.card[data-v-e6a360c7] {
+  box-shadow: 0 1px 2px rgba(23, 42, 84, 0.04), 0 12px 28px -18px rgba(37, 99, 235, 0.16);
+}
+.card[data-v-e6a360c7]:hover {
+  border-color: #d9e4f4;
+}
+
+/* ---------- 6. 侧边栏锁死恒定宽度（取消折叠） ---------- */
+.collapse-btn[data-v-efd8fa61] { display: none !important; }
+.sidebar.collapsed[data-v-efd8fa61] { width: var(--sidebar-width) !important; }
+.sidebar.collapsed .nav-label[data-v-efd8fa61] { display: inline-block !important; }
+.sidebar.collapsed .sidebar-header[data-v-efd8fa61] { justify-content: flex-start; }
+
+/* ---------- 7. 页面切换进入动画 ---------- */
+.sp-page-in {
+  animation: sp-page 0.3s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+@keyframes sp-page {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-page-in { animation: none; }
+}
+
+/* ---------- 8. 改密码对话框（注入元素专用） ---------- */
+.sp-ovl {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(15, 42, 90, 0.42);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.sp-dlg {
+  width: 400px;
+  max-width: 94vw;
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid #e7edf7;
+  box-shadow: 0 24px 60px -20px rgba(15, 42, 90, 0.35);
+  overflow: hidden;
+  animation: sp-in 0.18s ease;
+}
+@keyframes sp-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.sp-head {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #fff;
+  padding: 18px 22px;
+  font-weight: 600;
+  font-size: 15px;
+}
+.sp-body { padding: 22px 22px 6px; }
+.sp-label {
+  display: block;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+  margin: 0 0 6px;
+}
+.sp-inp {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  transition: all 0.15s;
+}
+.sp-inp:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+.sp-err {
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #ffe4e6;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.sp-tip { font-size: 12px; color: #94a3b8; margin: -6px 0 14px; }
+.sp-foot {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 14px 22px 22px;
+}
+.sp-btn {
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.sp-btn-pri {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff;
+  box-shadow: 0 6px 14px -8px rgba(37, 99, 235, 0.6);
+}
+.sp-btn-pri:hover { filter: brightness(1.07); }
+.sp-btn-pri:disabled { opacity: 0.6; cursor: not-allowed; }
+.sp-btn-sec { background: #fff; color: #475569; border-color: #cbd5e1; }
+.sp-btn-sec:hover { background: #f6f9fe; }
+
+/* ---------- 运营商标签统一配色：电信 #9CCC65 / 联通 #FFBA57 / 移动 #00ACC1 ---------- */
+/* !important：路由 chunk CSS 懒加载后 append 在本文件之后，需提权才能稳定覆盖 */
+.op-tag.ctcc[data-v-ba2dbf1d] { background: #9CCC65 !important; color: #FFFFFF !important; }
+.op-tag.cucc[data-v-ba2dbf1d] { background: #FFBA57 !important; color: #FFFFFF !important; }
+.op-tag.cmcc[data-v-ba2dbf1d] { background: #00ACC1 !important; color: #FFFFFF !important; }
+.op-row .badge-blue  { background: #9CCC65 !important; color: #FFFFFF !important; }
+.op-row .badge-green { background: #FFBA57 !important; color: #FFFFFF !important; }
+.op-row .badge-amber { background: #00ACC1 !important; color: #FFFFFF !important; }
+
+/* 节点管理：卡片上补的归属信息 */
+.sp-node-geo {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+/* 节点管理：归属信息行 + 编辑按钮 */
+.sp-geo-edit {
+  margin-left: 8px;
+  padding: 1px 8px;
+  font-size: 12px;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.sp-geo-edit:hover { background: #dbeafe; }
+.sp-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 2px;
+  font-size: 13px;
+  color: #334155;
+  cursor: pointer;
+}
+.sp-check input { width: 15px; height: 15px; }
