@@ -171,6 +171,32 @@ curl -fsSL https://raw.githubusercontent.com/Y5jttt/pingatlas/main/deploy/instal
 > 前置条件：脚本假定这台机器已有 **PostgreSQL 16 + TimescaleDB**（缺什么它会明确告诉你 ✓）。
 > 没有的话先装：`apt install -y postgresql-16` + TimescaleDB 官方源与 `shared_preload_libraries=timescaledb` ✓。
 
+### 方式一 · Windows：一键安装中心端
+
+在**管理员 PowerShell** 里执行一条命令：
+
+```powershell
+irm https://cdn.jsdelivr.net/gh/Y5jttt/pingatlas@main/deploy/install-center.ps1 | iex
+```
+
+（更稳妥：先下载再执行、可以先看一眼脚本内容）
+
+```powershell
+iwr https://cdn.jsdelivr.net/gh/Y5jttt/pingatlas@main/deploy/install-center.ps1 -OutFile install-center.ps1
+.\install-center.ps1 -PgSuperPassword '你的postgres管理员口令'
+```
+
+它会：下载 `pingatlas-center-windows-*.exe` 并**校验 SHA-256** ✓ → 建库建用户（可用 `-DbDsn` 跳过 ✓）→
+生成 `center.json`（随机口令与密码、ACL 收紧且授权 SYSTEM ✓）→ 注册**计划任务**（开机自启、崩溃自动重启、
+以 SYSTEM 运行 ✓，**不需要 WinSW/NSSM 之类的第三方包装工具** ✓）→ 启动并打印面板地址与管理密码 ✓。
+
+常用参数：`-Port` / `-Dir` / `-Version` / `-DbDsn` / `-Binary <本地exe>`（离线安装 ✓）/
+`-BaseUrl <镜像>` / `-NoService`（不注册计划任务 ✓）/ `-DryRun`（只打印不落地 ✓）。
+卸载：`.\install-center.ps1 -Uninstall`（加 `-Purge` 连目录一起删 ✓）。
+
+> 前置条件：本机已装 **PostgreSQL 16 + TimescaleDB** ✓（脚本会检查 timescaledb 扩展是否存在 ✓）。
+> Windows 上节点端需要**管理员权限**才能发 ICMP（原始套接字）✓；中心端不需要 ✓。
+
 ### 方式二：加一台探测节点
 
 登录管理面板 → 「添加节点」 → 生成**一次性安装码** → 在目标机器上按提示执行安装脚本（脚本由你的中心动态生成 ✓，
