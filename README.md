@@ -114,14 +114,65 @@ sequenceDiagram
 
 ## 快速上手
 
-**前置**：Go 1.23+、PostgreSQL 16 + TimescaleDB（中心）；Linux（节点，需要 `CAP_NET_RAW`）
+### 方式一：一键安装中心端（推荐）
+
+在一台干净的 Linux 机器上执行**一条命令**（需 root ✓，脚本开源可先审阅）：
 
 ```bash
-# 1) 建库（表结构由中心自动创建/迁移）
+curl -fsSL https://raw.githubusercontent.com/Y5jttt/pingatlas/main/deploy/install-center.sh | sudo bash
+```
+
+它会自动完成：
+
+1. 识别系统与架构（linux/amd64、linux/arm64 ✓）
+2. 从 [Releases](https://github.com/Y5jttt/pingatlas/releases) 下载中心二进制，并**用 `checksums.txt` 校验 SHA-256** ✓
+3. 创建数据库用户与库、启用 TimescaleDB 扩展（表结构由中心首次启动时自动创建 ✓）
+4. 生成 `center.json`（**随机**数据库口令 + **随机**管理密码，权限 `600` ✓）
+5. 装 systemd 单元并启动（`pingatlas-center` ✓）
+
+装完终端会打印**面板地址**与**管理密码** ✓：
+
+```
+面板地址 : http://127.0.0.1:18991/admin/
+管理密码 : xxxxxxxxxxxxxxxx
+```
+
+> 中心**只监听 127.0.0.1**（安全默认 ✓）。从外部访问请用 nginx/Caddy 反代，或临时开 SSH 隧道：
+> `ssh -L 18991:127.0.0.1:18991 用户名@这台机器`
+
+**重复执行 = 升级** ✓（只替换二进制，**不会覆盖**已有的 `center.json` ✓）。想显式指定版本、换端口、不用 systemd 等：
+
+```bash
+# 先看用法
+curl -fsSL https://raw.githubusercontent.com/Y5jttt/pingatlas/main/deploy/install-center.sh | sudo bash -s -- --help
+# 指定版本 + 端口 + 只装文件不装 systemd
+curl -fsSL https://raw.githubusercontent.com/Y5jttt/pingatlas/main/deploy/install-center.sh \
+  | sudo bash -s -- --version v0.3.1 --port 18991 --no-systemd
+```
+
+> **如果国内下载慢、或连不上 GitHub（实测常见）**
+> `api.github.com` 通常能访问 ✓，但 `github.com` 的 release 下载经常超时 ✗。三种做法：
+>
+> 1. **用镜像**：`… | sudo bash -s -- --base-url https://<镜像地址>/Y5jttt/pingatlas`（脚本仍会校验 SHA-256 ✓）
+> 2. **本地安装**：在能联网的机器上下载 `pingatlas-center-linux-amd64`，`scp` 到目标机器后执行
+>    `sudo bash install-center.sh --binary /路径/pingatlas-center-linux-amd64`（完全离线 ✓，会提示跳过校验 ✓）
+> 3. **节点端不受影响** ✓ —— 节点二进制由**你自己的中心**通过 `/agent/download` 分发，不经过 GitHub ✓
+
+> 前置条件：脚本假定这台机器已有 **PostgreSQL 16 + TimescaleDB**（缺什么它会明确告诉你 ✓）。
+> 没有的话先装：`apt install -y postgresql-16` + TimescaleDB 官方源与 `shared_preload_libraries=timescaledb` ✓。
+
+### 方式二：加一台探测节点
+
+登录管理面板 → 「添加节点」 → 生成**一次性安装码** → 在目标机器上按提示执行安装脚本（脚本由你的中心动态生成 ✓，
+也可手动下载：`http://<你的中心>/agent/install.sh` ✓）。节点需要 `CAP_NET_RAW` 权限 ✓，装完自动接入并开始探测 ✓。
+
+### 方式三：从源码构建
+
+```bash
+# 前置：Go 1.23+、PostgreSQL 16 + TimescaleDB
 sudo -u postgres psql -c "create database pingatlas;"
 sudo -u postgres psql -d pingatlas -c "create extension if not exists timescaledb;"
 
-# 2) 写配置 center.json（放在运行目录即可）
 cat > center.json <<'EOF'
 {
   "DB": "postgres://pingatlas:你的数据库口令@127.0.0.1:5432/pingatlas",
@@ -130,18 +181,11 @@ cat > center.json <<'EOF'
 }
 EOF
 
-# 3) 编译并运行中心
 go build -tags center -trimpath -ldflags '-s -w' -o pingatlas-center .
-./pingatlas-center --conf center.json
-#   日志出现「已连接数据库」「监听 127.0.0.1:18991」即成功
+./pingatlas-center --conf center.json      # 日志出现「监听 127.0.0.1:18991」即成功
 
-# 4) 打开看板
-#    首页      http://127.0.0.1:18991/
-#    管理面板  http://127.0.0.1:18991/admin/     （用上面 AdminPwd 登录）
-
-# 5) 编译并安装一台探测节点
+# 节点端
 go build -tags node -trimpath -ldflags '-s -w' -o pingatlas-node .
-#    然后在管理面板「添加节点」→ 拿到一次性安装码 → 在目标机器上按提示执行安装脚本（也可用 /agent/install.sh）
 ```
 
 跑测试：
