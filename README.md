@@ -150,6 +150,16 @@ curl -fsSL https://raw.githubusercontent.com/Y5jttt/pingatlas/main/deploy/instal
   | sudo bash -s -- --version v0.3.1 --port 18991 --no-systemd
 ```
 
+> **如果 `raw.githubusercontent.com` 连不上**（国内常见 ✗），改用 CDN 上的同一份脚本（内容一致 ✓，可用 `curl` 下来先看一眼再执行 ✓）：
+>
+> ```bash
+> curl -fsSL https://cdn.jsdelivr.net/gh/Y5jttt/pingatlas@main/deploy/install-center.sh | sudo bash
+> ```
+>
+> ```bash
+> curl -fsSL https://fastly.jsdelivr.net/gh/Y5jttt/pingatlas@main/deploy/install-center.sh | sudo bash
+> ```
+>
 > **如果国内下载慢、或连不上 GitHub（实测常见）**
 > `api.github.com` 通常能访问 ✓，但 `github.com` 的 release 下载经常超时 ✗。三种做法：
 >
